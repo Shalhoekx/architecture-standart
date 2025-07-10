@@ -1,0 +1,29 @@
+@startuml as_is WarmHouse
+!include Templates/C4_Context.puml
+
+Person(User, "Клиент", "Клиент банка Стандарт")
+Person(Support, "Оператор кол-центра", "Оператор кол-центра банка Стандарт")
+
+System_Boundary(Standart, "Система банка Стандарт"){
+    System(Site, "Site", "PHP + React")
+    System(MobileBank, "Интернет банк", "PHP + React")
+
+    System(APIGateway, "API шлюз", "Nginx")
+    System(CallCenter, "Кол-центр", "Java")
+
+
+    System_Ext(Telekom, "SMS-шлюз")
+    System(ABS, "АБС")
+
+    System(DepositDervice, "Сервисы депозитов", "Java")
+}
+
+Rel(User, Site, "HTTPS")
+Rel(User, MobileBank, "HTTPS")
+Rel(Site, APIGateway, "REST HTTPS")
+Rel(MobileBank, APIGateway, "REST HTTPS")
+Rel(APIGateway, CallCenter, "REST HTTPS")
+Rel(Support, CallCenter, "UI HTTPS")
+Rel(APIGateway, DepositDervice, "RabbitMQ HTTPS")
+Rel(DepositDervice, Telekom, "REST HTTPS")
+Rel(DepositDervice, ABS, "TCP\SQL")

@@ -1,0 +1,15 @@
+@startuml Standart
+!include Templates/C4_Component.puml
+
+Person(User, "Клиент", "Клиент банка Стандарт")
+Person(Support, "Оператор кол-центра", "Оператор кол-центра банка Стандарт")
+
+System(Standart, "Web-Система банка Стандарт", "")
+System_Ext(Telekom, "SMS-шлюз")
+System_Ext(ABS, "АБС")
+
+Rel(User, Standart, "Просматривает информацию о депозитах и создаёт заявки", "REST API, JSON data format")
+Rel(Support, Standart, "Обрабатывает заявки, запрашивает показания датчиков температуры", "REST API, JSON data format")
+Rel(Standart, Telekom, "Отправляет СМС", "REST API, JSON data format")
+Rel(Standart, ABS, "Создаёт заявки", "TCP\SQL")
+@enduml

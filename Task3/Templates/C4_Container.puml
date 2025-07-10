@@ -1,0 +1,42 @@
+@startuml as_is WarmHouse
+!include ../Templates/C4_Component.puml
+
+Person(User, "Пользователь", "Пользователь системы 'Умный дом'")
+Person(Support, "Специалист техподдержки", "Клиентская техподдержка")
+
+System_Boundary(SmartHome, "Система 'Умный дом'"){
+    Container(WebApp, "Web-приложение 'Умный дом'", "React SPA", "Веб-приложение для управления и мониторинга устройствами")
+    Container(Users, "Управление пользователями", "Python Service", "Управляет учетными записями пользователей")
+    Container(DeviceControl, "Управление устройствами", "Python Service", "Управляет устройствами пользователей")
+    Container(DeviceMonitoring, "Мониторинг устройств", "Python Service", "Получает данные с устройств пользователей")
+    Container(AutoDevice, "Управление автоматизированными сценариями", "Python Service", "Управляет редактированием пользовательскими сценариями")
+    Container(AutoDeviceService, "Выполнение автоматизированных сценариев", "Python Service", "Обрабатывает пользовательские сценарии")
+
+    ContainerDb(Database, "СУБД", "PostgreSQL", "Хранилище данных")
+
+    ContainerQueue(QueueMessage, "Брокер сообщений", "kafka", "Rest API, HTTPS")
+
+    Rel(User, WebApp, "Работает в приложении", "HTTPS")
+    Rel(Support, WebApp, "Работает в приложении", "HTTPS")
+
+    Rel(WebApp, Users, "Запрос\отправка данных", "HTTPS, REST JSON")
+    Rel(WebApp, DeviceControl, "Запрос\отправка данных", "HTTPS, REST JSON")
+    Rel(WebApp, DeviceMonitoring, "Запрос\отправка данных", "HTTPS, REST JSON")
+    Rel(WebApp, AutoDevice, "Создание\удаление сценария", "HTTPS, REST JSON")
+
+    Rel(DeviceControl, QueueMessage, "Отправляет команды", "HTTPS, REST JSON")
+    Rel(DeviceMonitoring, QueueMessage, "Отправляет команды", "HTTPS, REST JSON")
+    Rel(AutoDeviceService, QueueMessage, "Отправляет команды", "HTTPS, REST JSON")
+
+    Rel(DeviceMonitoring, Database, "Чтение\Запись", "SQL\TCP")
+    Rel(DeviceControl, Database, "Чтение\Запись", "SQL\TCP")
+    Rel(Users, Database, "Чтение\Запись", "SQL\TCP")
+    Rel(AutoDevice, Database, "Чтение\Запись", "SQL\TCP")
+    Rel(AutoDeviceService, Database, "Чтение\Запись", "SQL\TCP")
+}
+
+Container_Ext(Device, "Устройство", "Клиентское устройство")
+Rel(QueueMessage, Device, "Отправляет команды", "HTTPS, REST JSON")
+Rel(Device, QueueMessage, "Отправляет данные датчиков", "HTTPS, REST JSON")
+
+@enduml
