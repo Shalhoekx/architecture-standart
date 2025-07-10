@@ -1,0 +1,32 @@
+@startuml Standart
+!include Templates/C4_Container.puml
+
+Container_Boundary(DepositSenderService, "DepositSenderService") {
+    Container(Listener, "MQ Listener", "Java", "Ждёт сообщения из очереди")
+    Container(HandlerQueue, "HandlerQueue", "Java","Обработчик внутренней очереди")
+    Container(DepositHandler, "DepositHandler")
+    Container(DepositFileCreator, "DepositFileCreator")
+    Container(DepositSFTPSender, "DepositSFTPSender")
+    Container(DepositRestSender, "DepositRestSender")
+
+    ContainerDb(HandlerDB,"HandlerDB", "Postgre")
+}
+
+System(EventDepositService, "EventDepositService","Java")
+System(InternalCC, "Внутренний кол-центр","Java")
+System_Ext(ExternalCC, "Внешний кол-центр", "SFTP")
+
+Rel(Listener, HandlerQueue, "Задание на обработку новых депозитов")
+Rel(HandlerQueue, DepositHandler, "Задание на обработку новых депозитов")
+Rel(DepositHandler, HandlerQueue, "Задания на создание файла и отправку REST")
+Rel(HandlerQueue, DepositFileCreator, "Создание файла")
+Rel(HandlerQueue, DepositSFTPSender, "Отправка файла")
+Rel(HandlerQueue, DepositRestSender, "Отправка REST")
+Rel(DepositFileCreator, HandlerQueue, "Задание на отправку файла")
+
+Rel(HandlerQueue, HandlerDB, "Хранение очереди и результатов обработки")
+
+Rel(EventDepositService, Listener, "Событие об изменение ставок")
+Rel(DepositRestSender, InternalCC, "Новые ставки", "Rest\JSON")
+Rel(DepositSFTPSender, ExternalCC, "Файл новых ставок", "SFTP")
+

@@ -1,0 +1,21 @@
+@startuml Standart
+!include Templates/C4_Component.puml
+
+Person(Manager, "Менеджер бэк-офиса", "Менеджер депозитов")
+Person(SupportInner, "Оператор внутреннего кол-центра", "Оператор кол-центра банка Стандарт")
+Person(SupportExt, "Оператор партнёрского кол-центра", "Оператор кол-центра банка Стандарт")
+
+System_Ext(Abs, "ABS", "Oracle PL\SQL")
+System(EventDepositService, "EventDepositService","Java")
+System(DepositSenderService, "DepositSenderService","Java")
+System(InternalCC, "Внутренний кол-центр")
+System_Ext(ExternalCC, "Внешний кол-центр", "SFTP")
+
+Rel(Manager, Abs, "Изменение ставки")
+Rel(Abs, EventDepositService, "Нотификация")
+Rel(EventDepositService, DepositSenderService, "Event", "RabbitMQ")
+Rel(DepositSenderService, InternalCC, "Отправляет ставку", "REST")
+Rel(DepositSenderService, ExternalCC, "Отправляет ставку", "SFTP")
+Rel(SupportInner, InternalCC, "Работа с клиентом", "UI")
+Rel(SupportExt, ExternalCC, "Работа с клиентом", "UI")
+@enduml
